@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="WebUI/WebUI.csproj" Id="1d9ed5f1-105e-4377-80b4-e7670e8772c7" />
+  </Folder>
+  <Folder Name="/src/Gateway/" />
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/CustomerService/">
+    <Project Path="CustomerService.Api/CustomerService.Api.csproj" />
+    <Project Path="CustomerService.Application/CustomerService.Application.csproj" />
+    <Project Path="CustomerService.Domain/CustomerService.Domain.csproj" />
+    <Project Path="CustomerService.Infrastructure/CustomerService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/InvoiceService/">
+    <Project Path="InvoiceService.Api/InvoiceService.Api.csproj" Id="a7f4a9cb-57d4-4d6e-9c09-e7d3efa5a7a5" />
+    <Project Path="InvoiceService.Application/InvoiceService.Application.csproj" Id="3cbcfd66-54ed-4819-b556-28540211ef57" />
+    <Project Path="InvoiceService.Domain/InvoiceService.Domain.csproj" Id="014616f0-392c-4521-9d2c-edf9cefc7049" />
+    <Project Path="InvoiceService.Infrastructure/InvoiceService.Infrastructure.csproj" Id="e4101113-a35c-4d3c-8678-bd15f3f598f2" />
+  </Folder>
+  <Folder Name="/src/Services/ProductService/">
+    <Project Path="ProductService.Api/ProductService.Api.csproj" Id="d7ac43c3-7e32-4a1d-bc44-bc4b21c6d13a" />
+    <Project Path="ProductService.Application/ProductService.Application.csproj" Id="b14267e6-6658-4ba0-9f85-fc25924be720" />
+    <Project Path="ProductService.Domain/ProductService.Domain.csproj" Id="8deac617-ba50-4d77-8ccb-ad040dfae707" />
+    <Project Path="ProductService.Infrastructure/ProductService.Infrastructure.csproj" Id="8eb07bc6-70d2-4f00-b83a-41ea0929ac10" />
+  </Folder>
+</Solution>

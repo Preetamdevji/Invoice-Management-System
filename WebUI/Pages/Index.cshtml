@@ -1,0 +1,64 @@
+﻿@page
+@model WebUI.Pages.IndexModel
+@{
+    ViewData["Title"] = "Invoices";
+}
+
+<h1>Invoices (Latest 10)</h1>
+
+<a asp-page="/Create" class="btn btn-primary mb-3">+ Create New Invoice</a>
+
+@if (!Model.Invoices.Any())
+{
+    <p>No invoices found.</p>
+}
+else
+{
+    @foreach (var invoice in Model.Invoices)
+    {
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <div>
+                    <strong>@invoice.SalesOrderNumber</strong>
+                    (Order #@invoice.SalesOrderId) —
+                    Customer #@invoice.CustomerId
+                </div>
+                <div>
+                    @invoice.OrderDate.ToString("dd MMM yyyy")
+                    | Total: @invoice.TotalDue.ToString("C")
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Product #</th>
+                            <th>Color</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Discount</th>
+                            <th>Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detail in invoice.Details)
+                        {
+                            <tr>
+                                <td>@detail.ProductName</td>
+                                <td>@detail.ProductNumber</td>
+                                <td>@(detail.Color ?? "-")</td>
+                                <td>@detail.OrderQty</td>
+                                <td>@detail.UnitPrice.ToString("C")</td>
+                                <td>@detail.UnitPriceDiscount.ToString("P0")</td>
+                                <td>@detail.LineTotal.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+
