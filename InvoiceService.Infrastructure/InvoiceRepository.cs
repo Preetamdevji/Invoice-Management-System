@@ -187,7 +187,7 @@ namespace InvoiceService.Infrastructure
                 @UnitPriceDiscount
                 );
                 """;
-
+               
                 foreach (var detail in invoice.Details)
                 {
                     using var detailCommand = new SqlCommand(detailSql, connection, transaction);
