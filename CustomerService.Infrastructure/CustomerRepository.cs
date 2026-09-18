@@ -1,86 +1,44 @@
-﻿using CustomerService.Application.Interfaces;
-using CustomerService.Application.DTOs;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CustomerService.Application.DTOs;
+using CustomerService.Application.Interfaces;
+using CustomerService.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
-namespace CustomerService.Infrastructure
+namespace CustomerService.Infrastructure;
+
+public class CustomerRepository : ICustomerRepository
 {
-    public class CustomerRepository : ICustomerRepository
+    private readonly CustomerDbContext _context;
+
+    public CustomerRepository(CustomerDbContext context)
     {
-        private readonly SqlConnectionFactory _connectionFactory;
+        _context = context;
+    }
 
-        public CustomerRepository(SqlConnectionFactory connectionFactory)
-        {
-            _connectionFactory = connectionFactory;
-        }
-
-        public async Task<List<CustomerListItemDto>> GetAllAsync()
-        {
-            var customers = new List<CustomerListItemDto>();
-
-            const string sql = """
-            SELECT
-                Top 10
-                c.CustomerID,
-                p.FirstName,
-                p.LastName
-            FROM Sales.Customer c
-            INNER JOIN Person.Person p
-                ON c.PersonID = p.BusinessEntityID
-            ORDER BY c.CustomerID;
-            """;
-
-            using var connection = _connectionFactory.CreateConnection();
-            await connection.OpenAsync();
-
-            using var command = new SqlCommand(sql, connection);
-            using var reader = await command.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+    public async Task<List<CustomerListItemDto>> GetAllAsync()
+    {
+        var query =
+            from c in _context.Customers
+            join p in _context.People
+                on c.PersonId!.Value equals p.BusinessEntityId
+            orderby c.CustomerId
+            select new CustomerListItemDto
             {
-                var firstName = reader.GetString(reader.GetOrdinal("FirstName"));
-                var lastName = reader.GetString(reader.GetOrdinal("LastName"));
+                CustomerId = c.CustomerId,
+                FullName = p.FirstName + " " + p.LastName
+            };
 
-                customers.Add(new CustomerListItemDto
-                {
-                    CustomerId = reader.GetInt32(reader.GetOrdinal("CustomerID")),
-                    FullName = $"{firstName} {lastName}"
-                });
-            }
+        return await query.ToListAsync();
+    }
 
-            return customers;
-        }
-
-
-        public async Task<List<CustomerOptionDto>> GetCustomerOptionsAsync()
-        {
-            var customers = new List<CustomerOptionDto>();
-
-            const string sql = """
-            SELECT
-                CustomerID
-            FROM Sales.Customer
-            WHERE PersonID IS NOT NULL
-            ORDER BY CustomerID;
-            """;
-
-            using var connection = _connectionFactory.CreateConnection();
-            await connection.OpenAsync();
-
-            using var command = new SqlCommand(sql, connection);
-            using var reader = await command.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+    public async Task<List<CustomerOptionDto>> GetCustomerOptionsAsync()
+    {
+        return await _context.Customers
+            .Where(c => c.PersonId.HasValue)
+            .OrderBy(c => c.CustomerId)
+            .Select(c => new CustomerOptionDto
             {
-                customers.Add(new CustomerOptionDto
-                {
-                    CustomerId = reader.GetInt32(reader.GetOrdinal("CustomerID"))
-                });
-            }
-
-            return customers;
-        }
+                CustomerId = c.CustomerId
+            })
+            .ToListAsync();
     }
 }
