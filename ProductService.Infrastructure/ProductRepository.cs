@@ -1,94 +1,49 @@
-﻿using Microsoft.Data.SqlClient;
-using ProductService.Application.DTOs;
+﻿using ProductService.Application.DTOs;
 using ProductService.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ProductService.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
-namespace ProductService.Infrastructure
+namespace ProductService.Infrastructure;
+
+public class ProductRepository : IProductRepository
 {
-    public class ProductRepository : IProductRepository
+    private readonly ProductDbContext _context;
+
+    public ProductRepository(ProductDbContext context)
     {
-        private readonly SqlConnectionFactory _connectionFactory;
+        _context = context;
+    }
 
-        public ProductRepository(SqlConnectionFactory connectionFactory)
-        {
-            _connectionFactory = connectionFactory;
-        }
-
-        public async Task<List<ProductOptionDto>> GetProductOptionsAsync()
-        {
-            var products = new List<ProductOptionDto>();
-
-            const string sql = """
-                SELECT
-                ProductID,
-                Name,
-                ProductNumber,
-                ListPrice
-                FROM Production.Product
-                WHERE ListPrice > 0
-                ORDER BY Name;
-                """;
-
-            using var connection = _connectionFactory.CreateConnection();
-            await connection.OpenAsync();
-
-            using var command = new SqlCommand(sql, connection);
-
-            using var reader = await command.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+    public async Task<List<ProductOptionDto>> GetProductOptionsAsync()
+    {
+        return await _context.Products
+            .Where(p => p.ListPrice > 0)
+            .OrderBy(p => p.ProductId)
+            .Select(p => new ProductOptionDto
             {
-                products.Add(new ProductOptionDto
-                {
-                    ProductId = reader.GetInt32(reader.GetOrdinal("ProductID")),
-                    ProductName = reader.GetString(reader.GetOrdinal("Name")),
-                    ProductNumber = reader.GetString(reader.GetOrdinal("ProductNumber")),
-                    ListPrice = reader.GetDecimal(reader.GetOrdinal("ListPrice"))
-                });
-               
-            }
+                ProductId = p.ProductId,
+                ProductName = p.Name,
+                ProductNumber = p.ProductNumber,
+                ListPrice = p.ListPrice
+            })
+            .ToListAsync();
+    }
 
-            return products;
-
-        }
-
-        public async Task<List<SpecialOfferOptionDto>> GetSpecialOfferOptionsAsync(int productId)
-        {
-            var offers = new List<SpecialOfferOptionDto>();
-
-            const string sql = """
-            SELECT
-                so.SpecialOfferID,
-                so.Description,
-                so.DiscountPct
-            FROM Sales.SpecialOfferProduct sop
-            INNER JOIN Sales.SpecialOffer so
-                ON sop.SpecialOfferID = so.SpecialOfferID
-            WHERE sop.ProductID = @ProductID
-            ORDER BY so.SpecialOfferID;
-            """;
-
-            using var connection = _connectionFactory.CreateConnection();
-            await connection.OpenAsync();
-
-            using var command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@ProductID", productId);
-
-            using var reader = await command.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+    public async Task<List<SpecialOfferOptionDto>> GetSpecialOfferOptionsAsync(int productId)
+    {
+        var query =
+            from sop in _context.SpecialOfferProducts
+            join so in _context.SpecialOffers
+                on sop.SpecialOfferId equals so.SpecialOfferId
+            where sop.ProductId == productId
+            orderby so.SpecialOfferId
+            select new SpecialOfferOptionDto
             {
-                offers.Add(new SpecialOfferOptionDto
-                {
-                    SpecialOfferId = reader.GetInt32(reader.GetOrdinal("SpecialOfferID")),
-                    Description = reader.GetString(reader.GetOrdinal("Description")),
-                    DiscountPct = reader.GetDecimal(reader.GetOrdinal("DiscountPct"))
-                });
-            }
+                SpecialOfferId = so.SpecialOfferId,
+                Description = so.Description,
+                DiscountPct = so.DiscountPct
+            };
 
-            return offers;
-        }
+        return await query.ToListAsync();
     }
 }

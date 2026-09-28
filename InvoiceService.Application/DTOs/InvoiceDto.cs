@@ -7,6 +7,7 @@ namespace InvoiceService.Application.DTOs
     public class InvoiceDto
     {
         public int CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
         public int SalesOrderId { get; set; }
         public string SalesOrderNumber { get; set; } = string.Empty;
         public DateTime OrderDate { get; set; }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InvoiceService.Domain.Entities
 {
-    internal class InvoiceDetail
+    public class InvoiceDetail
     {
         public int SalesOrderDetailId { get; set; }
         public int SalesOrderId { get; set; }

@@ -1,0 +1,95 @@
+﻿@page
+@model WebUI.Pages.CreateStep1Model
+@{
+    ViewData["Title"] = "Create Invoice - Step 1";
+}
+
+<h1>Create Invoice — Step 1 of 2</h1>
+<p class="text-muted">Customer aur shipping details select karo, phir Next par click karo.</p>
+
+<form id="step1Form">
+    <div class="row mb-3">
+        <div class="col">
+            <label>Customer</label>
+            <select id="customerId" class="form-select" required>
+                <option value="">-- Select --</option>
+                @foreach (var c in Model.Customers)
+                {
+                    <option value="@c.CustomerId">Customer #@c.CustomerId</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <label>Due Date</label>
+            <input id="dueDate" type="date" class="form-control" required />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label>Bill To Address</label>
+            <select id="billToAddressId" class="form-select" required>
+                <option value="">-- Select --</option>
+                @foreach (var a in Model.Addresses)
+                {
+                    <option value="@a.AddressId">@a.DisplayName</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <label>Ship To Address</label>
+            <select id="shipToAddressId" class="form-select" required>
+                <option value="">-- Select --</option>
+                @foreach (var a in Model.Addresses)
+                {
+                    <option value="@a.AddressId">@a.DisplayName</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <label>Ship Method</label>
+            <select id="shipMethodId" class="form-select" required>
+                <option value="">-- Select --</option>
+                @foreach (var sm in Model.ShipMethods)
+                {
+                    <option value="@sm.Id">@sm.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label>Comment</label>
+        <input id="comment" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Next: Add Items →</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById("step1Form").addEventListener("submit", function (e) {
+            e.preventDefault(); // server ko submit mat karo — sirf sessionStorage mein save karo
+
+            const step1Data = {
+                customerId: parseInt(document.getElementById("customerId").value),
+                dueDate: document.getElementById("dueDate").value,
+                billToAddressId: parseInt(document.getElementById("billToAddressId").value),
+                shipToAddressId: parseInt(document.getElementById("shipToAddressId").value),
+                shipMethodId: parseInt(document.getElementById("shipMethodId").value),
+                comment: document.getElementById("comment").value || null
+            };
+
+            // Basic validation
+            if (!step1Data.customerId || !step1Data.dueDate || !step1Data.billToAddressId ||
+                !step1Data.shipToAddressId || !step1Data.shipMethodId) {
+                alert("Please fill all required fields.");
+                return;
+            }
+
+            sessionStorage.setItem("invoiceStep1", JSON.stringify(step1Data));
+
+            window.location.href = "/CreateStep2";
+        });
+    </script>
+}

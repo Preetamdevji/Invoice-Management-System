@@ -1,14 +1,21 @@
 using InvoiceService.Application.Interfaces;
 using InvoiceService.Infrastructure;
 using InvoiceService.Infrastructure.Clients;
+using InvoiceService.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<SqlConnectionFactory>(sp =>
-    new SqlConnectionFactory(
-        builder.Configuration.GetConnectionString("AdventureWorks")!));
+//builder.Services.AddScoped<SqlConnectionFactory>(sp =>
+//    new SqlConnectionFactory(
+//        builder.Configuration.GetConnectionString("AdventureWorks")!));
+
+builder.Services.AddDbContext<InvoiceDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
+
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 

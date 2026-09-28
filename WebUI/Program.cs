@@ -9,6 +9,11 @@ builder.Services.AddHttpClient("InvoiceService", client =>
         builder.Configuration["InvoiceServiceUrl"]!);
 });
 
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
