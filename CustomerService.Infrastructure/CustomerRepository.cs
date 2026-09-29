@@ -41,4 +41,16 @@ public class CustomerRepository : ICustomerRepository
             })
             .ToListAsync();
     }
+
+    public async Task<List<AddressOptionDto>> GetAddressOptionsAsync()
+    {
+        return await _context.Addresses
+            .OrderBy(a => a.AddressId)
+            .Select(a => new AddressOptionDto
+            {
+                AddressId = a.AddressId,
+                DisplayName = a.AddressLine1 + ", " + a.City + ", " + a.PostalCode
+            })
+            .ToListAsync();
+    }
 }

@@ -29,5 +29,12 @@ namespace CustomerService.Api.Controllers
             return Ok(options);
 
         }
+
+        [HttpGet("addresses/options")]
+        public async Task<IActionResult> GetAddressOptions()
+        {
+            var addresses = await _customerRepository.GetAddressOptionsAsync();
+            return Ok(addresses);
+        }
     }
 }

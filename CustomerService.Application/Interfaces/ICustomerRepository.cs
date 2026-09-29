@@ -9,5 +9,6 @@ namespace CustomerService.Application.Interfaces
     {
         Task<List<CustomerListItemDto>> GetAllAsync();
         Task<List<CustomerOptionDto>> GetCustomerOptionsAsync();
+        Task<List<AddressOptionDto>> GetAddressOptionsAsync();
     }
 }
